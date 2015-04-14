@@ -3,6 +3,7 @@ package cropper_helper.database;
 import com.google.gson.JsonObject;
 import org.lightcouch.CouchDbClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,5 +18,16 @@ public class DatabaseHelper {
 
     public static JsonObject getDocument(String id) {
         return db.find(JsonObject.class, id);
+    }
+
+    public static List<JsonObject> getSubscriptions() {
+        List<JsonObject> res = new ArrayList<>();
+        for (JsonObject doc : getAllDocs()) {
+            JsonObject object = getDocument(doc.get("id").toString());
+            if (object.getAsJsonObject("properties").has("email")) {
+                res.add(object);
+            }
+        }
+        return res;
     }
 }
