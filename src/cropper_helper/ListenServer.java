@@ -9,7 +9,6 @@ import cropper_helper.notification.CropperNotifier;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 
 /**
