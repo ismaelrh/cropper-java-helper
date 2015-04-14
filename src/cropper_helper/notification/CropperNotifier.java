@@ -10,7 +10,6 @@ import com.vividsolutions.jts.geom.Polygon;
 import cropper_helper.database.DatabaseHelper;
 
 import javax.mail.*;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.ArrayList;
