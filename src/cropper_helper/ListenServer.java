@@ -10,11 +10,14 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by dbarelop on 14/4/15.
  */
 public class ListenServer implements Runnable {
+    private static final Logger logger = Logger.getLogger(ListenServer.class.getName());
     public static final int LISTEN_PORT = 8080;
     public static class NotificationHandler implements HttpHandler {
         @Override
@@ -31,8 +34,9 @@ public class ListenServer implements Runnable {
             server.createContext("/notify", new NotificationHandler());
             server.setExecutor(null);
             server.start();
+            logger.log(Level.FINE, "Listening on port " + LISTEN_PORT);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.toString(), e);
         }
     }
 }

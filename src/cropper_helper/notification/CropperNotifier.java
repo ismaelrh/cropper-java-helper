@@ -81,6 +81,6 @@ public class CropperNotifier {
         m.setSubject(subj);
         m.setText(mess);
         Transport.send(m);
-        System.out.println("Notification sent succesfully to " + dest);
+        logger.log(Level.FINE, "Notification sent succesfully to " + dest);
     }
 }
