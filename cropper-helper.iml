@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module type="WEB_MODULE" version="4">
+<module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="com.sun.net.httpserver:http:20070405" level="project" />
+    <orderEntry type="library" name="http-20070405" level="project" />
     <orderEntry type="library" name="org.lightcouch:lightcouch:0.1.6" level="project" />
     <orderEntry type="library" name="javax.mail:mail:1.4.7" level="project" />
     <orderEntry type="library" name="com.google.code.gson:gson:2.3.1" level="project" />
