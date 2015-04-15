@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import cropper_helper.cropper.Feature;
 import cropper_helper.notification.CropperNotifier;
 import org.apache.commons.io.IOUtils;
 
@@ -23,7 +24,7 @@ public class ListenServer implements Runnable {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             JsonObject obj = new JsonParser().parse(IOUtils.toString(httpExchange.getRequestBody(), "UTF-8")).getAsJsonObject();
-            CropperNotifier.notifyUsers(obj);
+            CropperNotifier.notifyUsers(new Feature(obj));
         }
     }
 
