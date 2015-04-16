@@ -20,8 +20,8 @@ public class DatabaseHelper {
         return db.view("_all_docs").query(JsonObject.class);
     }
 
-    public static JsonObject getDocument(String id) throws NoDocumentException {
-        return db.find(JsonObject.class, id);
+    public static JsonObject getDocument(long id) {
+        return db.find(JsonObject.class, Long.toString(id));
     }
 
     public static JsonObject getThermalDocument(String id) throws NoDocumentException {
@@ -36,13 +36,13 @@ public class DatabaseHelper {
         db_th.remove(jo);
     }
 
-    public static List<JsonObject> getSubscriptions() {
-        List<JsonObject> res = new ArrayList<>();
+    public static List<Subscription> getSubscriptions() {
+        List<Subscription> res = new ArrayList<>();
         for (JsonObject doc : getAllDocs()) {
-            String id = doc.get("id").toString();
-            JsonObject object = getDocument(id.substring(1).substring(0,id.length()-2));
+            JsonObject object = getDocument(doc.get("id").getAsLong());
             if (object.getAsJsonObject("properties").has("email")) {
-                res.add(object);
+                Subscription s = new Subscription(object);
+                res.add(s);
             }
         }
         return res;
