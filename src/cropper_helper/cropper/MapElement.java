@@ -11,6 +11,7 @@ import java.util.ArrayList;
  */
 public abstract class MapElement {
     long _id;
+    int test;
     String _rev;
     String type;
     MapElementProperties properties;
