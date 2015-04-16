@@ -35,7 +35,7 @@ public class ListenServer implements Runnable {
             server.createContext("/notify", new NotificationHandler());
             server.setExecutor(null);
             server.start();
-            logger.log(Level.FINE, "Listening on port " + LISTEN_PORT);
+            logger.log(Level.INFO, "Listening on port " + LISTEN_PORT);
         } catch (IOException e) {
             logger.log(Level.SEVERE, e.toString(), e);
         }

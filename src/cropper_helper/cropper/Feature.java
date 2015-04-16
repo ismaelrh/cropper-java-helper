@@ -1,19 +1,15 @@
 package cropper_helper.cropper;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.vividsolutions.jts.geom.Coordinate;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.*;
 
 /**
  * Created by dbarelop on 15/04/15.
  */
 public class Feature extends MapElement {
 
-    public Feature(int _id, String _rev, String type, FeatureProperties properties, MapElementGeometry geometry, String lastAction, String user) {
+    public Feature(long _id, String _rev, String type, FeatureProperties properties, MapElementGeometry geometry, String lastAction, String user) {
         super._id = _id;
         super._rev = _rev;
         super.type = type;
@@ -24,12 +20,12 @@ public class Feature extends MapElement {
     }
 
     public Feature(JsonObject feature) {
-        _id = feature.getAsJsonObject("_id").getAsInt();
-        _rev = feature.getAsJsonObject("_rev").getAsString();
+        _id = feature.get("_id").getAsLong();
+        _rev = feature.get("_rev").getAsString();
         properties = new FeatureProperties(feature.getAsJsonObject("properties"));
         geometry = new MapElementGeometry(feature.getAsJsonObject("geometry"));
-        lastAction = feature.getAsJsonObject("lastAction").getAsString();
-        user = feature.getAsJsonObject("user").getAsString();
+        lastAction = feature.get("lastAction").getAsString();
+        user = feature.get("user").getAsString();
     }
 
     public class FeatureProperties implements MapElementProperties {
@@ -46,10 +42,10 @@ public class Feature extends MapElement {
         }
 
         public FeatureProperties(JsonObject featureProperties) {
-            category = featureProperties.getAsJsonObject("category").getAsString();
-            stroke = Color.decode(featureProperties.getAsJsonObject("stroke").getAsString());
-            fill = Color.decode(featureProperties.getAsJsonObject("fill").getAsString());
-            preset = featureProperties.getAsJsonObject("preset").getAsString();
+            category = featureProperties.get("category").getAsString();
+            /*stroke = Color.decode(featureProperties.get("stroke").getAsString());
+            fill = Color.decode(featureProperties.get("fill").getAsString());*/
+            preset = featureProperties.get("preset").getAsString();
         }
 
         public String getCategory() {

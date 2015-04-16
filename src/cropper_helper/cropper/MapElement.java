@@ -4,14 +4,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Created by dbarelop on 15/04/15.
  */
 public abstract class MapElement {
-    int _id;
+    long _id;
     String _rev;
     String type;
     MapElementProperties properties;
@@ -19,7 +18,7 @@ public abstract class MapElement {
     String lastAction;
     String user;
 
-    public int get_id() {
+    public long get_id() {
         return _id;
     }
 
@@ -57,7 +56,7 @@ public abstract class MapElement {
         }
 
         public MapElementGeometry(JsonObject featureGeometry) {
-            type = featureGeometry.getAsJsonObject("type").getAsString();
+            type = featureGeometry.get("type").getAsString();
             coordinates = new ArrayList<>();
             for (JsonElement e : featureGeometry.getAsJsonArray("coordinates").get(0).getAsJsonArray()) {
                 double x = e.getAsJsonArray().get(0).getAsDouble();
