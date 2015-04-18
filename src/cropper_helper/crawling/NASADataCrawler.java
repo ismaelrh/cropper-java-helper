@@ -22,13 +22,12 @@ import java.util.*;
  */
 public class NASADataCrawler {
 
-    public static Map<String,Object> updateThermalAnomaly(Coordinate mid_point, String _id) {
+    public static Map<String,Object> updateThermalAnomaly(Coordinate mid_point, long _id) {
         ArrayList<ThermalSingleValue> values = new ArrayList<ThermalSingleValue>();
         try {
             try {
                 JsonObject old_data = DatabaseHelper.getThermalDocument(_id);
-                Map<String,Object> result =
-                        new ObjectMapper().readValue(old_data.toString(), HashMap.class);
+                Map<String,Object> result = new ObjectMapper().readValue(old_data.toString(), HashMap.class);
                 int day = (int)result.get("day");
                 if(day!=Calendar.getInstance().get(Calendar.DAY_OF_MONTH)) {
                     DatabaseHelper.removeDoc(old_data);
