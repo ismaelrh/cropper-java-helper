@@ -42,15 +42,15 @@ public class ListenServer implements Runnable {
         public void handle(HttpExchange httpExchange) throws IOException {
             try {
                 String GET = java.net.URLDecoder.decode(httpExchange.getRequestURI().toString().substring(14), "UTF-8");
-                System.out.print(GET+"\n");
+                System.out.print(GET + "\n");
 
-                
-            JsonObject obj = new JsonParser().parse(IOUtils.toString(httpExchange.getRequestBody(), "UTF-8")).getAsJsonObject();
-            Subscription subs = new Subscription(obj);
-            GeometryFactory gf = new GeometryFactory();
-            Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
-            Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
-            Map<String,Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, subs.get_id());
+
+                JsonObject obj = new JsonParser().parse(GET).getAsJsonObject();
+                Subscription subs = new Subscription(obj);
+                GeometryFactory gf = new GeometryFactory();
+                Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
+                Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
+                Map<String, Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, subs.get_id());
 
                 httpExchange.sendResponseHeaders(200, '0');
                 OutputStream os = httpExchange.getResponseBody();
