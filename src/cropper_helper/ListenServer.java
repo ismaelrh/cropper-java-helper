@@ -1,5 +1,7 @@
 package cropper_helper;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -18,6 +20,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,25 +44,40 @@ public class ListenServer implements Runnable {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             try {
+
+
                 String GET = java.net.URLDecoder.decode(httpExchange.getRequestURI().toString().substring(14), "UTF-8");
                 System.out.print(GET + "\n");
 
 
                 JsonObject obj = new JsonParser().parse(GET).getAsJsonObject();
+
                 Subscription subs = new Subscription(obj);
+
                 GeometryFactory gf = new GeometryFactory();
+
                 Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
+
                 Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
+
+
                 Map<String, Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, subs.get_id());
 
-                httpExchange.sendResponseHeaders(200, '0');
+                Gson gson = new GsonBuilder().create();
+                String json = gson.toJson(newObj);
+
+                //Access-Control-Allow-Origin is essential.
+                httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+                httpExchange.sendResponseHeaders(200, json.length());
                 OutputStream os = httpExchange.getResponseBody();
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.writeValue(os, newObj);
+                os.write(json.getBytes());
                 os.close();
 
-            } catch (Exception e) {
 
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin","*");
                 httpExchange.sendResponseHeaders(315, '0');
                 OutputStream os = httpExchange.getResponseBody();
                 os.write("Error parsing input.".getBytes());

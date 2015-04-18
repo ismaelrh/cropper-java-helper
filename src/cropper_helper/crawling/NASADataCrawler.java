@@ -29,12 +29,13 @@ public class NASADataCrawler {
                 JsonObject old_data = DatabaseHelper.getThermalDocument(_id);
                 Map<String,Object> result = new ObjectMapper().readValue(old_data.toString(), HashMap.class);
                 int day = (int)result.get("day");
+
                 if(day!=Calendar.getInstance().get(Calendar.DAY_OF_MONTH)) {
                     DatabaseHelper.removeDoc(old_data);
                 } else {
                     return result;
                 }
-            } catch (NoDocumentException e1) {}
+            } catch (NoDocumentException e1) {e1.printStackTrace();}
 
             String urlString = "https://api.data.gov/nasa/planetary/earth/temperature/coords?lon=" +
                     mid_point.x%180 + "&lat=" +
@@ -46,10 +47,11 @@ public class NASADataCrawler {
 
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> jsonMap = mapper.readValue(is, Map.class);
-            jsonMap.put("_id",_id);
+            jsonMap.put("_id",String.valueOf(_id));
             jsonMap.put("day",Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
 
             DatabaseHelper.storeDoc(jsonMap);
+            System.out.println("Stored in database");
             return jsonMap;
 
         } catch (Exception e) {
