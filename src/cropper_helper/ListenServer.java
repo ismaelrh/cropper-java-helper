@@ -12,7 +12,8 @@ import cropper_helper.notification.CropperNotifier;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
@@ -30,21 +31,34 @@ public class ListenServer implements Runnable {
         }
     }
 
+
     public static class PlotHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
+            try {
+                String GET = java.net.URLDecoder.decode(httpExchange.getRequestURI().toString().substring(14), "UTF-8");
+                System.out.print(GET+"\n");
+                JsonObject obj = new JsonParser().parse(GET).getAsJsonObject();
 
-            JsonObject obj = new JsonParser().parse(IOUtils.toString(httpExchange.getRequestBody(), "UTF-8")).getAsJsonObject();
-            Polygon p = CropperNotifier.parsePolygon(obj.getAsJsonObject("geometry").getAsJsonArray("coordinates"));
-            String id = obj.get("_id").toString();
-            id = id.substring(1).substring(0, id.length() - 2);
-            Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
-            Map<String,Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, id);
+                Polygon p = CropperNotifier.parsePolygon(obj.getAsJsonObject("geometry").getAsJsonArray("coordinates"));
+                String id = obj.get("_id").toString();
+                id = id.substring(1).substring(0, id.length() - 2);
+                Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
+                Map<String, Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, id);
 
-            httpExchange.sendResponseHeaders(200, '0');
-            OutputStream os = httpExchange.getResponseBody();
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(os,newObj);
+                httpExchange.sendResponseHeaders(200, '0');
+                OutputStream os = httpExchange.getResponseBody();
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.writeValue(os, newObj);
+                os.close();
+
+            } catch (Exception e) {
+
+                httpExchange.sendResponseHeaders(315, '0');
+                OutputStream os = httpExchange.getResponseBody();
+                os.write("Error parsing input.".getBytes());
+                os.close();
+            }
         }
     }
 
