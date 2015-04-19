@@ -35,8 +35,26 @@ public class ListenServer implements Runnable {
     public static class NotificationHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            JsonObject obj = new JsonParser().parse(IOUtils.toString(httpExchange.getRequestBody(), "UTF-8")).getAsJsonObject();
-            CropperNotifier.notifyUsers(new Feature(obj));
+
+            try {
+                String GET = java.net.URLDecoder.decode(httpExchange.getRequestURI().toString().substring(13), "UTF-8");
+                System.out.print(GET + "\n");
+                httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+
+                httpExchange.sendResponseHeaders(200, "ok".length());
+                OutputStream os = httpExchange.getResponseBody();
+                os.write("ok".getBytes());
+                os.close();
+
+                JsonObject obj = new JsonParser().parse(GET).getAsJsonObject();
+                System.out.println("Starting to calculate...");
+                CropperNotifier.notifyUsers(new Feature(obj));
+                System.out.println("Finished...");
+
+            }
+            catch(Exception ex){
+               System.out.println("Bad request");
+            }
         }
     }
 
@@ -76,7 +94,7 @@ public class ListenServer implements Runnable {
 
 
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("Peticion a thermal incorrecta.");
                 httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin","*");
                 httpExchange.sendResponseHeaders(315, '0');
                 OutputStream os = httpExchange.getResponseBody();

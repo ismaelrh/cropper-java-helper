@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class EmailNotifier implements Notifier {
     private static final Logger logger = Logger.getLogger(EmailNotifier.class.getName());
     private final String USERNAME = "croppersa@gmail.com";
-    private final String PASSWORD = "YOUR_PASSWORD";
+    private final String PASSWORD = "mojhjaksrcuhfcin";
     private final Properties props = new Properties() {{
         put("mail.smtp.auth", "true");
         put("mail.smtp.starttls.enable", "true");
@@ -36,13 +36,15 @@ public class EmailNotifier implements Notifier {
 
         Message m = new MimeMessage(session);
         try {
+
             m.setFrom(new InternetAddress(USERNAME));
             m.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destEmail));
             m.setSubject(title);
             m.setText(description);
             Transport.send(m);
             logger.log(Level.FINE, "Notification sent succesfully to " + destEmail);
-        } catch (MessagingException e) {
+            System.out.println("EMAIL: to " + destEmail + ", subject: " + title + ", text: " + description );
+        } catch (Exception e) {
             logger.log(Level.SEVERE, e.toString(), e);
         }
     }

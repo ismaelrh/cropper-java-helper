@@ -41,9 +41,13 @@ public class DatabaseHelper {
         List<Subscription> res = new ArrayList<>();
         for (JsonObject doc : getAllDocs()) {
             JsonObject object = getDocument(doc.get("id").getAsLong());
-            if (object.getAsJsonObject("properties").has("email")) {
-                Subscription s = new Subscription(object);
-                res.add(s);
+            JsonObject properties = object.getAsJsonObject("properties");
+            if (properties.get("zoneType") != null) {
+                String zoneType = properties.get("zoneType").getAsString();
+                if (properties.has("email") && (zoneType.equals("crop") || zoneType.equals("subscription"))) {
+                    Subscription s = new Subscription(object);
+                    res.add(s);
+                }
             }
         }
         return res;
