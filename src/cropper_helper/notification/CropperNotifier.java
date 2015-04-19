@@ -4,7 +4,6 @@ import com.vividsolutions.jts.geom.*;
 import cropper_helper.cropper.Feature;
 import cropper_helper.cropper.Subscription;
 import cropper_helper.database.DatabaseHelper;
-import javafx.util.Pair;
 
 import java.util.*;
 import java.util.concurrent.Executor;
