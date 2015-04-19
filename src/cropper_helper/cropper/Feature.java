@@ -9,7 +9,7 @@ import java.awt.*;
  */
 public class Feature extends MapElement {
 
-    public Feature(long _id, String _rev, String type, FeatureProperties properties, MapElementGeometry geometry, String lastAction, String user) {
+    public Feature(String _id, String _rev, String type, FeatureProperties properties, MapElementGeometry geometry, String lastAction, String user) {
         super._id = _id;
         super._rev = _rev;
         super.type = type;
@@ -20,7 +20,7 @@ public class Feature extends MapElement {
     }
 
     public Feature(JsonObject feature) {
-        _id = feature.get("_id").getAsLong();
+        _id = feature.get("_id").getAsString();
         _rev = feature.get("_rev").getAsString();
         properties = new FeatureProperties(feature.getAsJsonObject("properties"));
         geometry = new MapElementGeometry(feature.getAsJsonObject("geometry"));

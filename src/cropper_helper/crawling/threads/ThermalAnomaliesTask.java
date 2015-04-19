@@ -23,7 +23,7 @@ public class ThermalAnomaliesTask implements Runnable {
         for (Subscription subs : DatabaseHelper.getSubscriptions()) {
             GeometryFactory gf = new GeometryFactory();
             Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
-            long id = subs.get_id();
+            String id = subs.get_id();
             Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
             NASADataCrawler.updateThermalAnomaly(mid, id);
         }

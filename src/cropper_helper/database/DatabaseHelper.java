@@ -20,13 +20,13 @@ public class DatabaseHelper {
         return db.view("_all_docs").query(JsonObject.class);
     }
 
-    public static JsonObject getDocument(long id) {
-        return db.find(JsonObject.class, Long.toString(id));
+    public static JsonObject getDocument(String id) {
+        return db.find(JsonObject.class, id);
     }
 
-    public static JsonObject getThermalDocument(long id) {
+    public static JsonObject getThermalDocument(String id) {
         try {
-            return db_th.find(JsonObject.class, Long.toString(id));
+            return db_th.find(JsonObject.class, id);
         } catch (NoDocumentException e) {
             return null;
         }
@@ -43,7 +43,7 @@ public class DatabaseHelper {
     public static List<Subscription> getSubscriptions() {
         List<Subscription> res = new ArrayList<>();
         for (JsonObject doc : getAllDocs()) {
-            JsonObject object = getDocument(doc.get("id").getAsLong());
+            JsonObject object = getDocument(doc.get("_id").getAsString());
             JsonObject properties = object.getAsJsonObject("properties");
             if (properties.get("zoneType") != null) {
                 String zoneType = properties.get("zoneType").getAsString();
