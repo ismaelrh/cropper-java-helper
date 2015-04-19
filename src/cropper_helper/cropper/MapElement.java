@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Created by dbarelop on 15/04/15.
  */
 public abstract class MapElement {
-    long _id;
+    String _id;
     String _rev;
     String type;
     MapElementProperties properties;
@@ -18,7 +18,7 @@ public abstract class MapElement {
     String lastAction;
     String user;
 
-    public long get_id() {
+    public String get_id() {
         return _id;
     }
 

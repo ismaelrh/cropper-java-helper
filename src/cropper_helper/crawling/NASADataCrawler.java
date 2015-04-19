@@ -24,7 +24,7 @@ public class NASADataCrawler {
     private static final long THANOM_STATS_FREQ = 24*60*60*1000;    // 1 day
     private static final String DATA_URL = "https://api.data.gov/nasa/planetary/earth/temperature/coords?lon=%f&lat=%f&begin=1990&end=%d&api_key=DEMO_KEY";
 
-    public static Map<String,Object> updateThermalAnomaly(Coordinate mid_point, long _id) {
+    public static Map<String,Object> updateThermalAnomaly(Coordinate mid_point, String _id) {
         try {
             JsonObject old_data = DatabaseHelper.getThermalDocument(_id);
             if (old_data == null || (System.currentTimeMillis() - old_data.get("timestamp").getAsLong() > THANOM_STATS_FREQ)) {
@@ -37,7 +37,7 @@ public class NASADataCrawler {
                         DatabaseHelper.removeDoc(old_data);
                     }
                     Map<String, Object> jsonMap = new ObjectMapper().readValue(is, Map.class);
-                    jsonMap.put("_id", Long.toString(_id));
+                    jsonMap.put("_id", _id);
                     jsonMap.put("timestamp", System.currentTimeMillis());
 
                     DatabaseHelper.storeDoc(jsonMap);

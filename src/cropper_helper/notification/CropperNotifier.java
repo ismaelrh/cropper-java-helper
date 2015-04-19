@@ -23,8 +23,9 @@ import java.util.logging.Logger;
  */
 public class CropperNotifier {
     private static final Logger logger = Logger.getLogger(CropperNotifier.class.getName());
-    //List of notified zones, used to not repeat notifications.
-    private static List<Long> alreadyNotified = Collections.synchronizedList(new ArrayList<Long>());
+    //List of notified zones, used not to repeat notifications.
+    // TODO: store in database
+    private static List<String> alreadyNotified = Collections.synchronizedList(new ArrayList<String>());
     public static void notifyUsers(Feature newFeature) {
         try {
             GeometryFactory gf = new GeometryFactory();
