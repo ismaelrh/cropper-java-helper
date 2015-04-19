@@ -24,8 +24,12 @@ public class DatabaseHelper {
         return db.find(JsonObject.class, Long.toString(id));
     }
 
-    public static JsonObject getThermalDocument(long id) throws NoDocumentException {
-        return db_th.find(JsonObject.class, Long.toString(id));
+    public static JsonObject getThermalDocument(long id) {
+        try {
+            return db_th.find(JsonObject.class, Long.toString(id));
+        } catch (NoDocumentException e) {
+            return null;
+        }
     }
 
     public static void storeDoc(Map<String,Object> obj) {

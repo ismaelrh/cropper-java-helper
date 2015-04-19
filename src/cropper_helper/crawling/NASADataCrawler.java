@@ -7,6 +7,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import cropper_helper.data.ThermalSingleValue;
 import cropper_helper.database.DatabaseHelper;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.lightcouch.NoDocumentException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,31 +21,33 @@ import java.util.logging.Logger;
  */
 public class NASADataCrawler {
     private static final Logger logger = Logger.getLogger(NASADataCrawler.class.getName());
+    private static final long THANOM_STATS_FREQ = 24*60*60*1000;    // 1 day
     private static final String DATA_URL = "https://api.data.gov/nasa/planetary/earth/temperature/coords?lon=%f&lat=%f&begin=1990&end=%d&api_key=DEMO_KEY";
 
     public static Map<String,Object> updateThermalAnomaly(Coordinate mid_point, long _id) {
         try {
             JsonObject old_data = DatabaseHelper.getThermalDocument(_id);
-            Map<String,Object> result = new ObjectMapper().readValue(old_data.toString(), HashMap.class);
-            int day = (int) result.get("day");
-
-            if(day != Calendar.getInstance().get(Calendar.DAY_OF_MONTH)) {
-                DatabaseHelper.removeDoc(old_data);
+            if (old_data == null || (System.currentTimeMillis() - old_data.get("timestamp").getAsLong() > THANOM_STATS_FREQ)) {
                 /*String urlString = "https://api.data.gov/nasa/planetary/earth/temperature/coords?lon=" +
                     mid_point.x%180 + "&lat=" +
                     mid_point.y%180 + "&begin=1990&end="+ Calendar.getInstance().get(Calendar.YEAR)+"&api_key=DEMO_KEY";*/
-                URL url = new URL(String.format(DATA_URL, mid_point.x % 180, mid_point.y % 180, Calendar.getInstance().get(Calendar.YEAR)));
-                try (InputStream is = url.openStream()) {
+                URL url = new URL(String.format(Locale.US, DATA_URL, mid_point.x % 180, mid_point.y % 180, Calendar.getInstance().get(Calendar.YEAR)));
+                try (InputStream is = url.openConnection().getInputStream()) {
+                    if (old_data != null) {
+                        DatabaseHelper.removeDoc(old_data);
+                    }
                     Map<String, Object> jsonMap = new ObjectMapper().readValue(is, Map.class);
                     jsonMap.put("_id", Long.toString(_id));
-                    jsonMap.put("day", Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+                    jsonMap.put("timestamp", System.currentTimeMillis());
 
                     DatabaseHelper.storeDoc(jsonMap);
                     logger.log(Level.FINE, "Thermal anomaly information stored in the database");
                     return jsonMap;
                 }
+            } else if (old_data != null) {
+                return new ObjectMapper().readValue(old_data.toString(), HashMap.class);
             } else {
-                return result;
+                return null;
             }
         } catch (IOException e) {
             logger.log(Level.SEVERE, e.toString(), e);

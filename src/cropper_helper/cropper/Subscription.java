@@ -34,7 +34,7 @@ public class Subscription extends MapElement {
         }
 
         public SubscriptionProperties(JsonObject subscriptionProperties) {
-            email = subscriptionProperties.get("email").getAsString();
+            email = subscriptionProperties.get("email") != null ? subscriptionProperties.get("email").getAsString() : null;
         }
 
         public String getEmail() {

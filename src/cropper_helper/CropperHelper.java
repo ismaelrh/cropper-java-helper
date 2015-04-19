@@ -7,7 +7,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class CropperHelper {
-
     private static final long THANOM_STATS_FREQ = 24*60*60*1000;    // 1 day
 
     public static void main(String[] args) {

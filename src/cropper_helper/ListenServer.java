@@ -52,23 +52,27 @@ public class ListenServer implements Runnable {
     public static class PlotHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            Map<String, String> params = queryToMap(httpExchange.getRequestURI().getQuery());
-            JsonObject obj = new JsonParser().parse(params.get("json")).getAsJsonObject();
+            try {
+                Map<String, String> params = queryToMap(httpExchange.getRequestURI().getQuery());
+                JsonObject obj = new JsonParser().parse(params.get("json")).getAsJsonObject();
 
-            Subscription subs = new Subscription(obj);
-            GeometryFactory gf = new GeometryFactory();
-            Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
-            Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
-            Map<String, Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, subs.get_id());
+                Subscription subs = new Subscription(obj);
+                GeometryFactory gf = new GeometryFactory();
+                Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
+                Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
+                Map<String, Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, subs.get_id());
 
-            Gson gson = new GsonBuilder().create();
-            String json = gson.toJson(newObj);
+                Gson gson = new GsonBuilder().create();
+                String json = gson.toJson(newObj);
 
-            // Access-Control-Allow-Origin is essential.
-            httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-            httpExchange.sendResponseHeaders(200, json.length());
-            try (OutputStream os = httpExchange.getResponseBody()) {
-                os.write(json.getBytes());
+                // Access-Control-Allow-Origin is essential.
+                httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+                httpExchange.sendResponseHeaders(200, json.length());
+                try (OutputStream os = httpExchange.getResponseBody()) {
+                    os.write(json.getBytes());
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, e.toString(), e);
             }
         }
     }
