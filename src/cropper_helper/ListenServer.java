@@ -14,14 +14,14 @@ import cropper_helper.crawling.NASADataCrawler;
 import cropper_helper.cropper.Feature;
 import cropper_helper.cropper.Subscription;
 import cropper_helper.notification.CropperNotifier;
-import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.InputMismatchException;
+import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,78 +30,60 @@ import java.util.logging.Logger;
  */
 public class ListenServer implements Runnable {
     private static final Logger logger = Logger.getLogger(ListenServer.class.getName());
-    public static final int LISTEN_PORT = 8080;
+    private static final int LISTEN_PORT = 8081;
+    private static final int MAX_THREADS = 8;
 
     public static class NotificationHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
+            Map<String, String> params = queryToMap(httpExchange.getRequestURI().getQuery());
+            JsonObject obj = new JsonParser().parse(params.get("json")).getAsJsonObject();
 
-            try {
-                String GET = java.net.URLDecoder.decode(httpExchange.getRequestURI().toString().substring(13), "UTF-8");
-                System.out.print(GET + "\n");
-                httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+            httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+            httpExchange.sendResponseHeaders(200, "ok".length());
+            OutputStream os = httpExchange.getResponseBody();
+            os.write("ok".getBytes());
+            os.close();
 
-                httpExchange.sendResponseHeaders(200, "ok".length());
-                OutputStream os = httpExchange.getResponseBody();
-                os.write("ok".getBytes());
-                os.close();
-
-                JsonObject obj = new JsonParser().parse(GET).getAsJsonObject();
-                System.out.println("Starting to calculate...");
-                CropperNotifier.notifyUsers(new Feature(obj));
-                System.out.println("Finished...");
-
-            }
-            catch(Exception ex){
-               System.out.println("Bad request");
-            }
+            CropperNotifier.notifyUsers(new Feature(obj));
         }
     }
 
     public static class PlotHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            try {
+            Map<String, String> params = queryToMap(httpExchange.getRequestURI().getQuery());
+            JsonObject obj = new JsonParser().parse(params.get("json")).getAsJsonObject();
 
+            Subscription subs = new Subscription(obj);
+            GeometryFactory gf = new GeometryFactory();
+            Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
+            Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
+            Map<String, Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, subs.get_id());
 
-                String GET = java.net.URLDecoder.decode(httpExchange.getRequestURI().toString().substring(14), "UTF-8");
-                System.out.print(GET + "\n");
+            Gson gson = new GsonBuilder().create();
+            String json = gson.toJson(newObj);
 
-
-                JsonObject obj = new JsonParser().parse(GET).getAsJsonObject();
-
-                Subscription subs = new Subscription(obj);
-
-                GeometryFactory gf = new GeometryFactory();
-
-                Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
-
-                Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());
-
-
-                Map<String, Object> newObj = NASADataCrawler.updateThermalAnomaly(mid, subs.get_id());
-
-                Gson gson = new GsonBuilder().create();
-                String json = gson.toJson(newObj);
-
-                //Access-Control-Allow-Origin is essential.
-                httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-                httpExchange.sendResponseHeaders(200, json.length());
-                OutputStream os = httpExchange.getResponseBody();
+            // Access-Control-Allow-Origin is essential.
+            httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+            httpExchange.sendResponseHeaders(200, json.length());
+            try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(json.getBytes());
-                os.close();
-
-
-
-            } catch (Exception e) {
-                System.out.println("Peticion a thermal incorrecta.");
-                httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin","*");
-                httpExchange.sendResponseHeaders(315, '0');
-                OutputStream os = httpExchange.getResponseBody();
-                os.write("Error parsing input.".getBytes());
-                os.close();
             }
         }
+    }
+
+    private static Map<String, String> queryToMap(String query) {
+        Map<String, String> result = new HashMap<>();
+        for (String param : query.split("&")) {
+            String[] pair = param.split("=");
+            if (pair.length > 1) {
+                result.put(pair[0], pair[1]);
+            } else {
+                result.put(pair[0], "");
+            }
+        }
+        return result;
     }
 
     @Override
@@ -110,8 +92,9 @@ public class ListenServer implements Runnable {
             HttpServer server = HttpServer.create(new InetSocketAddress(LISTEN_PORT), 0);
             server.createContext("/notify", new NotificationHandler());
             server.createContext("/thermal", new PlotHandler());
-            server.setExecutor(null);
+            server.setExecutor(Executors.newFixedThreadPool(MAX_THREADS));
             server.start();
+            logger.log(Level.INFO, "Listening on port " + LISTEN_PORT + "...");
         } catch (IOException e) {
             logger.log(Level.SEVERE, e.toString(), e);
         }

@@ -43,7 +43,6 @@ public class EmailNotifier implements Notifier {
             m.setText(description);
             Transport.send(m);
             logger.log(Level.FINE, "Notification sent succesfully to " + destEmail);
-            System.out.println("EMAIL: to " + destEmail + ", subject: " + title + ", text: " + description );
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.toString(), e);
         }

@@ -25,16 +25,15 @@ public class DatabaseHelper {
     }
 
     public static JsonObject getThermalDocument(long id) throws NoDocumentException {
-
-;        return db_th.find(JsonObject.class, Long.toString(id));
+        return db_th.find(JsonObject.class, Long.toString(id));
     }
 
     public static void storeDoc(Map<String,Object> obj) {
         db_th.save(obj);
     }
 
-    public static void removeDoc(JsonObject jo) {
-        db_th.remove(jo);
+    public static void removeDoc(JsonObject obj) {
+        db_th.remove(obj);
     }
 
     public static List<Subscription> getSubscriptions() {

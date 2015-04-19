@@ -13,6 +13,7 @@
     <orderEntry type="library" name="com.google.code.gson:gson:2.3.1" level="project" />
     <orderEntry type="library" name="com.vividsolutions:jts:1.13" level="project" />
     <orderEntry type="library" name="commons-io:commons-io:2.4" level="project" />
-    <orderEntry type="library" name="activation-1.1" level="project" />
+    <orderEntry type="library" name="org.codehaus.jackson:jackson-core-asl:1.9.11" level="project" />
+    <orderEntry type="library" name="org.codehaus.jackson:jackson-mapper-asl:1.9.11" level="project" />
   </component>
 </module>

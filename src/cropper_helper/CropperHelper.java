@@ -2,25 +2,17 @@ package cropper_helper;
 
 import cropper_helper.crawling.threads.ThermalAnomaliesTask;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class CropperHelper {
 
-    private static final long thermal_anomalies_freq_milis = 60*60*24*1000;
+    private static final long THANOM_STATS_FREQ = 24*60*60*1000;    // 1 day
 
     public static void main(String[] args) {
         new Thread(new ListenServer()).start();
-        TimerTask thermal_anomalies_task = new ThermalAnomaliesTask();
-        Timer thermal_anomalies_timer = new Timer(true);
-        thermal_anomalies_timer.scheduleAtFixedRate(thermal_anomalies_task, 0, thermal_anomalies_freq_milis);
-
-        while (true) {
-            try {
-                Thread.sleep(99999);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutor.scheduleAtFixedRate(new ThermalAnomaliesTask(), 0, THANOM_STATS_FREQ, TimeUnit.MILLISECONDS);
     }
 }
