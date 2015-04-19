@@ -13,6 +13,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import cropper_helper.crawling.NASADataCrawler;
 import cropper_helper.cropper.Feature;
 import cropper_helper.cropper.Subscription;
+import cropper_helper.cropper.ThermalZone;
 import cropper_helper.notification.CropperNotifier;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class ListenServer implements Runnable {
                 Map<String, String> params = queryToMap(httpExchange.getRequestURI().getQuery());
                 JsonObject obj = new JsonParser().parse(params.get("json")).getAsJsonObject();
 
-                Subscription subs = new Subscription(obj);
+                ThermalZone subs = new ThermalZone(obj);
                 GeometryFactory gf = new GeometryFactory();
                 Polygon p = new Polygon(gf.createLinearRing(subs.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
                 Coordinate mid = new Coordinate(p.getCentroid().getX(), p.getCentroid().getY());

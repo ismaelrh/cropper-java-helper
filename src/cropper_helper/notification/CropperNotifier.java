@@ -53,7 +53,7 @@ public class CropperNotifier {
                         alreadyNotified.add(newFeature.get_id());
                     }
                     else{
-                        System.out.println("Zone already notified");
+                        System.out.println("ThermalZone already notified");
                     }
 
                 }
