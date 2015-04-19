@@ -4,12 +4,12 @@ import com.vividsolutions.jts.geom.*;
 import cropper_helper.cropper.Feature;
 import cropper_helper.cropper.Subscription;
 import cropper_helper.database.DatabaseHelper;
-import javafx.util.Pair;
 
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -27,8 +27,9 @@ public class CropperNotifier {
         Polygon reference = new Polygon(gf.createLinearRing(newFeature.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
         for (Subscription subscr : DatabaseHelper.getSubscriptions()) {
             final String id = subscr.get_id() + newFeature.get_id();
+            //logger.log(Level.INFO, subscr.get_id() + "\t" + newFeature.get_id());
             Polygon p = new Polygon(gf.createLinearRing(subscr.getGeometry().getCoordinates().toArray(new Coordinate[0])), null, gf);
-            if (!reference.disjoint(p) && !notified.contains(id)) {
+            if (!reference.disjoint(p)) {
                 final String notificationTitle = "Cropper alert";
 
                 // Category
@@ -47,9 +48,11 @@ public class CropperNotifier {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        notif.sendNotification(notificationTitle, notificationDescription);
-                        // no need for synchronization as ExecutorService is single-threaded
-                        notified.add(id);
+                        if (!notified.contains(id)) {
+                            notif.sendNotification(notificationTitle, notificationDescription);
+                            // no need for synchronization as ExecutorService is single-threaded
+                            notified.add(id);
+                        }
                     }
                 });
             }
