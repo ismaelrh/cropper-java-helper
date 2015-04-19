@@ -1,6 +1,7 @@
 package cropper_helper.notification;
 
 import javax.mail.*;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
@@ -36,14 +37,13 @@ public class EmailNotifier implements Notifier {
 
         Message m = new MimeMessage(session);
         try {
-
             m.setFrom(new InternetAddress(USERNAME));
             m.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destEmail));
             m.setSubject(title);
             m.setText(description);
             Transport.send(m);
             logger.log(Level.FINE, "Notification sent succesfully to " + destEmail);
-        } catch (Exception e) {
+        } catch (MessagingException e) {
             logger.log(Level.SEVERE, e.toString(), e);
         }
     }
